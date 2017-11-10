@@ -16,9 +16,9 @@ var _svgIcon2 = _interopRequireDefault(_svgIcon);
 
 var _tools = require("../tools");
 
-var _emitter = require("../emitter");
+var _rvjsEmitter = require("rvjs-emitter");
 
-var _emitter2 = _interopRequireDefault(_emitter);
+var _rvjsEmitter2 = _interopRequireDefault(_rvjsEmitter);
 
 var _rvjsTools = require("rvjs-tools");
 
@@ -65,7 +65,7 @@ var Radiobox = function (_React$Component) {
 		}
 
 		if (state.emitter) {
-			emit = _emitter2.default.create(state.emitter);
+			emit = _rvjsEmitter2.default.create(state.emitter);
 			emit.on(self.emitUpdate);
 			if (name) {
 				if (emit.has(name)) {
@@ -106,7 +106,7 @@ var Radiobox = function (_React$Component) {
 			    newState = assignNot({}, props, ['name', 'emitter', 'checked', 'disabled', 'value']);
 
 			if (!emit && props.emitter) {
-				emit = newState.emitter = _emitter2.default.create(props.emitter);
+				emit = newState.emitter = _rvjsEmitter2.default.create(props.emitter);
 			}
 
 			if (typeof props.disabled === "boolean") {
