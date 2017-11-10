@@ -114,6 +114,15 @@ function appendChild(child, props) {
 function assignOnly(to, from, map) {
 	for (var i = 0, length = map.length, name; i < length; i++) {
 		name = map[i];
+
+		// ?name
+		if (name.length && name[0] === "?") {
+			name = name.substr(1);
+			if (to.hasOwnProperty(name)) {
+				continue;
+			}
+		}
+
 		if (from.hasOwnProperty(name)) {
 			to[name] = from[name];
 		}

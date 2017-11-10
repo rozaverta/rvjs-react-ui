@@ -34,7 +34,7 @@ function SvgIcon(props) {
 	if (typeof data === "string") {
 		path = data;
 	} else if (data) {
-		(0, _tools.assignOnly)(svgProps, props, ['viewBox', 'width', 'height']);
+		(0, _tools.assignOnly)(svgProps, data, ['viewBox', '?width', '?height']);
 		if (typeof data.path === 'string') {
 			path = data.path;
 		}
