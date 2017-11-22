@@ -14,7 +14,7 @@ var _tools = require("../tools");
 
 var _components = require("../components");
 
-var _svgIcon = require("svg-icon");
+var _svgIcon = require("./svg-icon");
 
 var _svgIcon2 = _interopRequireDefault(_svgIcon);
 
