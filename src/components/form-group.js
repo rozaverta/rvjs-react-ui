@@ -74,7 +74,6 @@ var FormGroup = function (_React$Component) {
 		value: function render() {
 			var self = this,
 			    state = this.state,
-			    form = (0, _tools.filterProps)(state, {}, PropsIgnored),
 			    label = [],
 			    className = "form-group";
 
@@ -115,7 +114,7 @@ var FormGroup = function (_React$Component) {
 				_react2.default.createElement(
 					"div",
 					{ className: "row-input" },
-					(0, _components.create)(state.formComponent, form)
+					(0, _components.create)(state.formComponent, (0, _tools.assignNot)({}, state, PropsIgnored))
 				)
 			);
 		}
