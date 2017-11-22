@@ -19,6 +19,10 @@ var _checkbox = require("./components/checkbox");
 
 var _checkbox2 = _interopRequireDefault(_checkbox);
 
+var _formGroup = require("./components/form-group");
+
+var _formGroup2 = _interopRequireDefault(_formGroup);
+
 var _link = require("./components/link");
 
 var _link2 = _interopRequireDefault(_link);
@@ -99,6 +103,7 @@ function get(name) {
 set({
 	Button: _button2.default,
 	Checkbox: _checkbox2.default,
+	FormGroup: _formGroup2.default,
 	Link: _link2.default,
 	ProgressCircle: _progressCircle2.default,
 	ProgressLine: _progressLine2.default,

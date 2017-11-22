@@ -137,6 +137,14 @@ var Radiobox = function (_React$Component) {
 			Object.keys(newState).length > 0 && this.setState(newState);
 		}
 	}, {
+		key: "componentWillUnmount",
+		value: function componentWillUnmount() {
+			var state = this.state;
+			if (state.emitter) {
+				state.emitter.off(this.emitUpdate);
+			}
+		}
+	}, {
 		key: "onChange",
 		value: function onChange(e) {
 			var self = this,

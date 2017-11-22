@@ -24,7 +24,7 @@ var Svg = {};
  */
 
 function SvgIcon(props) {
-	var iconProps = (0, _tools.filterProps)(props),
+	var iconProps = (0, _tools.filterProps)(props, {}, ['viewBox', 'width', 'height']),
 	    name = props.iconName || "empty",
 	    className = 'svg-icon icon-' + name,
 	    svgProps = (0, _tools.assignOnly)({ viewBox: "0 0 24 24" }, props, ['width', 'height']),
