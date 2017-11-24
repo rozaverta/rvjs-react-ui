@@ -45,6 +45,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 // @import tools/input-controllers/color
 // @import tools/input-controllers/date-time
 
+// fake dispatcher
+
+var evnTrue = true;
+try {
+	evnTrue = document.dispatchEvent(new Event('FakeChange'));
+} catch (e) {
+	evnTrue = false;
+}
+
 function getController(controller) {
 	if (controller instanceof _textController2.default) {
 		return controller;
@@ -217,7 +226,7 @@ var TextInput = function (_React$Component) {
 		}
 	}, {
 		key: "setValue",
-		value: function setValue(value, e, filter) {
+		value: function setValue(value, event, filter) {
 			var self = this,
 			    state = self.state,
 			    valid = true;
@@ -225,14 +234,14 @@ var TextInput = function (_React$Component) {
 			if (state.value !== value) {
 
 				var controller = state.controller || 0,
-				    error = void 0;
+				    alertMessage = void 0;
 				if (filter && controller) {
 					value = _rvjsTools2.default.toString(controller.filter(value));
 				}
 
 				if (value.length) {
 					valid = controller ? controller.valid(value, function (text) {
-						error = _rvjsTools2.default.toString(text);
+						alertMessage = _rvjsTools2.default.toString(text);
 					}) : true;
 				} else if (state.required) {
 					valid = false;
@@ -240,19 +249,19 @@ var TextInput = function (_React$Component) {
 
 				if (state.name && state.emitter) {
 					state.emitter.set(state.name, value);
-					if (state.valid !== valid || state.alertMessage !== error) {
+					if (state.valid !== valid || state.alertMessage !== alertMessage) {
 						self.setState({
-							valid: valid, alertMessage: error
+							valid: valid, alertMessage: alertMessage
 						});
 					}
 				} else {
 					self.setState({
-						value: value, valid: valid, alertMessage: error
+						value: value, valid: valid, alertMessage: alertMessage
 					});
 				}
 
 				if (state.onChange) {
-					state.onChange.call(self, e);
+					state.onChange.call(self, event);
 				}
 			}
 		}
@@ -273,39 +282,48 @@ var TextInput = function (_React$Component) {
 				controller.run(value, function (newValue) {
 
 					var event = void 0,
-					    input = self.refs.input;
+					    prop = { bubbles: true, cancelable: true },
+					    target = self.refs.input,
+					    trigger = function trigger(e) {
 
-					try {
-						event = new Proxy(new Event("fake"), {
-							get: function get(target, prop) {
-								if (prop === 'target' || prop === 'currentTarget') {
-									return input;
-								} else {
-									return target[prop];
+						// update value
+						if (_rvjsTools2.default.isScalar(newValue)) {
+							self.setValue(_rvjsTools2.default.toString(newValue), e, false);
+						}
+
+						// update state
+						else if ((typeof newValue === "undefined" ? "undefined" : _typeof(newValue)) === 'object' && newValue !== null) {
+
+								if (newValue.hasOwnProperty('value')) {
+									self.setValue(_rvjsTools2.default.toString(newValue.value), e, false);
+									newValue = (0, _tools.assignNot)({}, newValue, ['value']);
+								}
+
+								if (Object.keys(newValue).length) {
+									self.setState(newValue);
 								}
 							}
-						});
-					} catch (e) {
-						event = { type: "fake", target: input, currentTarget: input };
-					}
+					};
 
-					// update value
-					if (_rvjsTools2.default.isScalar(newValue)) {
-						self.setValue(_rvjsTools2.default.toString(newValue), event, false);
-					}
-
-					// update state
-					else if ((typeof newValue === "undefined" ? "undefined" : _typeof(newValue)) === 'object' && newValue !== null) {
-
-							if (newValue.hasOwnProperty('value')) {
-								self.setValue(_rvjsTools2.default.toString(newValue.value), event, false);
-								newValue = (0, _tools.assignNot)({}, newValue, ['value']);
-							}
-
-							if (Object.keys(newValue).length) {
-								self.setState(newValue);
-							}
+					try {
+						if (evnTrue) {
+							event = new UIEvent('FakeChange', prop);
+						} else {
+							event = document.createEvent('Event');
+							event.initEvent('FakeChange', prop);
 						}
+
+						target.addEventListener('FakeChange', trigger, false);
+						target.dispatchEvent(event);
+					} catch (e) {
+						trigger({
+							type: 'FakeChange',
+							currentTarget: target,
+							target: target
+						});
+					} finally {
+						target.removeEventListener('FakeChange', trigger, false);
+					}
 				});
 			}
 		}
@@ -334,13 +352,17 @@ var TextInput = function (_React$Component) {
 			if (state.controller) {
 				var controller = state.controller,
 				    iconClassName = controller.iconClassName;
-				icon = controller.iconName || icon || 'cursor-text';
-				if (state.disabled) {
-					icon = _react2.default.createElement(_svgIcon2.default, { iconName: icon, className: iconClassName, key: "icon" });
-				} else {
-					icon = _react2.default.createElement(_svgIcon2.default, { iconName: icon, className: (iconClassName ? iconClassName + " " : "") + 'clickable', onClick: self.onControllerClick, key: "icon" });
+				if (controller.iconName !== false) {
+					icon = controller.iconName || icon || 'cursor-text';
 				}
-				props.readOnly = controller.readOnly;
+
+				if (icon) {
+					if (state.disabled || controller.readOnly) {
+						icon = _react2.default.createElement(_svgIcon2.default, { iconName: icon, className: iconClassName, key: "icon" });
+					} else {
+						icon = _react2.default.createElement(_svgIcon2.default, { iconName: icon, className: (iconClassName ? iconClassName + " " : "") + 'clickable', onClick: self.onControllerClick, key: "icon" });
+					}
+				}
 			} else if (icon) {
 				icon = _react2.default.createElement(_svgIcon2.default, { iconName: icon, key: "icon" });
 			}
@@ -355,7 +377,7 @@ var TextInput = function (_React$Component) {
 			}
 
 			if (props.disabled) className += ' form-disabled';
-			if (!props.valid) {
+			if (!state.valid) {
 				className += ' form-invalid';
 				if (state.alertMessage) {
 					input.push(_react2.default.createElement(
