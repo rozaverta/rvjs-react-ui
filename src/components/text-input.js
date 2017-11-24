@@ -102,6 +102,11 @@ function init(state) {
 
 	state.valid = valid;
 	state.alertMessage = error;
+
+	if (state.controller) {
+		state.controller.init(state);
+	}
+
 	return state;
 }
 
@@ -311,7 +316,7 @@ var TextInput = function (_React$Component) {
 				if (state.alertMessage) {
 					input.push(_react2.default.createElement(
 						"div",
-						{ className: "form-alert" },
+						{ className: "form-alert", key: "alert" },
 						state.alertMessage
 					));
 				}

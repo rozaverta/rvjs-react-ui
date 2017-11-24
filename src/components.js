@@ -43,6 +43,10 @@ var _svgIcon = require("./components/svg-icon");
 
 var _svgIcon2 = _interopRequireDefault(_svgIcon);
 
+var _text = require("./components/text");
+
+var _text2 = _interopRequireDefault(_text);
+
 var _textInput = require("./components/text-input");
 
 var _textInput2 = _interopRequireDefault(_textInput);
@@ -109,6 +113,7 @@ set({
 	ProgressLine: _progressLine2.default,
 	Radiobox: _radiobox2.default,
 	SvgIcon: _svgIcon2.default,
+	Text: _text2.default,
 	TextInput: _textInput2.default,
 	Wrapper: _wrapper2.default
 });

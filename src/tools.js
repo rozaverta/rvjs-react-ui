@@ -137,7 +137,7 @@ function assignOnly(to, from, map) {
 
 function assignNot(to, from, map) {
 	Object.keys(from).forEach(function (name) {
-		if (map.indexOf(name) < 1) {
+		if (map.indexOf(name) < 0) {
 			to[name] = from[name];
 		}
 	});
@@ -214,7 +214,7 @@ var componentProto = function (_React$Component) {
 		var self = _this,
 		    state = Object.assign({}, props);
 		if (state.emitter) {
-			state.emitter = state.create(state.emitter);
+			state.emitter = _rvjsEmitter2.default.create(state.emitter);
 			if (typeof self.emitUpdate === 'function') {
 				state.emitter.on(self.emitUpdate);
 			}

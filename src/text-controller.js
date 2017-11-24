@@ -33,6 +33,9 @@ var TextController = function () {
 			return text;
 		}
 	}, {
+		key: "init",
+		value: function init(state) {}
+	}, {
 		key: "readOnly",
 		get: function get() {
 			return false;
