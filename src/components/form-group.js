@@ -35,6 +35,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var PropsIgnored = ['formComponent', 'labelText', 'tooltipText'];
 
+var DefaultState = {
+	formComponent: 'TextInput',
+	labelText: '',
+	tooltipText: '',
+	required: false
+};
+
+var DefaultDynamicState = {
+	id: function id() {
+		return 'form_group_' + Math.floor(Math.random() * 10000000);
+	}
+};
+
 function showTooltip(text, e) {
 	console.log("@todo show tooltip", text, e.currentTarget);
 }
@@ -49,15 +62,9 @@ var FormGroup = function (_React$Component) {
 
 		var _this = _possibleConstructorReturn(this, (FormGroup.__proto__ || Object.getPrototypeOf(FormGroup)).call(this, props));
 
-		var state = Object.assign({
-			formComponent: 'TextInput',
-			labelText: '',
-			tooltipText: '',
-			required: false
-		}, props);
-
+		var state = Object.assign({}, DefaultState, props);
 		if (!state.id) {
-			state.id = 'form_group_' + Math.floor(Math.random() * 10000000);
+			state.id = DefaultDynamicState.id();
 		}
 
 		_this.state = state;
@@ -67,7 +74,7 @@ var FormGroup = function (_React$Component) {
 	_createClass(FormGroup, [{
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(props) {
-			this.setState(props);
+			(0, _tools.componentReloadProps)(this, props, DefaultState, DefaultDynamicState);
 		}
 	}, {
 		key: "render",

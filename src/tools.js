@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.componentProto = exports.blur = exports.assignNot = exports.assignOnly = exports.appendChild = exports.filterProps = exports.mergeClassName = exports.htmlBlockNames = exports.dimensions = exports.intents = undefined;
+exports.componentReloadProps = exports.componentProto = exports.blur = exports.assignNot = exports.assignOnly = exports.appendChild = exports.filterProps = exports.mergeClassName = exports.htmlBlockNames = exports.dimensions = exports.intents = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -162,6 +162,28 @@ function blur(props) {
 	}
 }
 
+function componentReloadProps(self, props, defaultState, defaultCallback) {
+	var state = self.state,
+	    update = Object.assign({}, props);
+
+	Object.keys(state).forEach(function (key) {
+		if (!update.hasOwnProperty(key)) {
+			if (defaultState.hasOwnProperty(key)) {
+				update[key] = defaultState[key];
+			} else if (defaultCallback[key]) {
+				update[key] = defaultCallback[key]();
+			} else {
+				if (key === 'emitter' && self.emitUpdate) {
+					state.emitter.off(self.emitUpdate);
+				}
+				update[key] = null;
+			}
+		}
+	});
+
+	self.setState(update);
+}
+
 var componentProto = function (_React$Component) {
 	_inherits(componentProto, _React$Component);
 
@@ -177,7 +199,7 @@ var componentProto = function (_React$Component) {
 	_createClass(componentProto, [{
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(props) {
-			this.setState(props);
+			componentReloadProps(this, props, {}, {});
 		}
 	}]);
 
@@ -194,3 +216,4 @@ exports.assignOnly = assignOnly;
 exports.assignNot = assignNot;
 exports.blur = blur;
 exports.componentProto = componentProto;
+exports.componentReloadProps = componentReloadProps;
