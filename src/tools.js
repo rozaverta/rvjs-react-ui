@@ -17,6 +17,10 @@ var _caller = require("./caller");
 
 var _caller2 = _interopRequireDefault(_caller);
 
+var _rvjsEmitter = require("rvjs-emitter");
+
+var _rvjsEmitter2 = _interopRequireDefault(_rvjsEmitter);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -163,8 +167,19 @@ function blur(props) {
 }
 
 function componentReloadProps(self, props, defaultState, defaultCallback) {
+	var complete = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
 	var state = self.state,
-	    update = Object.assign({}, props);
+	    update = Object.assign({}, props),
+	    isEmit = typeof self.emitUpdate === 'function';
+
+	if (update.emitter) {
+		update.emitter = _rvjsEmitter2.default.create(update.emitter);
+		if (isEmit) {
+			state.emitter && state.emitter.off(self.emitUpdate);
+			update.emitter.on(self.emitUpdate);
+		}
+	}
 
 	Object.keys(state).forEach(function (key) {
 		if (!update.hasOwnProperty(key)) {
@@ -173,13 +188,17 @@ function componentReloadProps(self, props, defaultState, defaultCallback) {
 			} else if (defaultCallback[key]) {
 				update[key] = defaultCallback[key]();
 			} else {
-				if (key === 'emitter' && self.emitUpdate) {
+				if (key === 'emitter' && state.emitter && isEmit) {
 					state.emitter.off(self.emitUpdate);
 				}
-				update[key] = null;
+				update[key] = undefined;
 			}
 		}
 	});
+
+	if (complete) {
+		update = complete(update);
+	}
 
 	self.setState(update);
 }
@@ -192,7 +211,16 @@ var componentProto = function (_React$Component) {
 
 		var _this = _possibleConstructorReturn(this, (componentProto.__proto__ || Object.getPrototypeOf(componentProto)).call(this, props));
 
-		_this.state = Object.assign({}, props);
+		var self = _this,
+		    state = Object.assign({}, props);
+		if (state.emitter) {
+			state.emitter = state.create(state.emitter);
+			if (typeof self.emitUpdate === 'function') {
+				state.emitter.on(self.emitUpdate);
+			}
+		}
+
+		self.state = state;
 		return _this;
 	}
 

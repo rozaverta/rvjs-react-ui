@@ -32,6 +32,30 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function init(state) {
+	if (typeof state.disabled !== "boolean") {
+		state.disabled = false;
+	}
+
+	if (typeof state.checked !== "boolean") {
+		state.checked = false;
+	}
+
+	state.value = _rvjsTools2.default.toString(state.value);
+
+	if (typeof state.name !== 'string') {
+		state.name = '';
+	} else if (state.name && state.emitter) {
+		if (state.emitter.has(state.name)) {
+			state.checked = state.emitter.get(state.name) === state.value;
+		} else if (state.checked) {
+			state.emitter.set(state.name, state.value, false);
+		}
+	}
+
+	return state;
+}
+
 var Radiobox = function (_React$Component) {
 	_inherits(Radiobox, _React$Component);
 
@@ -41,45 +65,13 @@ var Radiobox = function (_React$Component) {
 		var _this = _possibleConstructorReturn(this, (Radiobox.__proto__ || Object.getPrototypeOf(Radiobox)).call(this, props));
 
 		var self = _this,
-		    state = Object.assign({}, props, ['value', 'checked', 'name']),
-		    emit = false,
-		    checked = false,
-		    name = '',
-		    value = '';
+		    state = Object.assign({}, props);
 		self.onChange = self.onChange.bind(self);
 
-		if (typeof state.disabled !== "boolean") {
-			state.disabled = false;
-		}
-
-		if (typeof props.checked === "boolean") {
-			checked = props.checked;
-		}
-
-		if (typeof props.name === 'string') {
-			name = props.name;
-		}
-
-		if (props.hasOwnProperty('value')) {
-			value = _rvjsTools2.default.toString(props.value);
-		}
-
 		if (state.emitter) {
-			emit = _rvjsEmitter2.default.create(state.emitter);
-			emit.on(self.emitUpdate);
-			if (name) {
-				if (emit.has(name)) {
-					checked = emit.get(name) === value;
-				} else if (checked) {
-					emit.set(name, value, false);
-				}
-			}
+			state.emitter = _rvjsEmitter2.default.create(state.emitter);
+			state.emitter.on(self.emitUpdate);
 		}
-
-		state.name = name;
-		state.emitter = emit;
-		state.checked = checked;
-		state.value = value;
 
 		self.state = state;
 		return _this;
@@ -98,43 +90,7 @@ var Radiobox = function (_React$Component) {
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(props) {
-			var self = this,
-			    state = self.state,
-			    name = state.name,
-			    emit = state.emitter,
-			    value = state.value,
-			    newState = assignNot({}, props, ['name', 'emitter', 'checked', 'disabled', 'value']);
-
-			if (!emit && props.emitter) {
-				emit = newState.emitter = _rvjsEmitter2.default.create(props.emitter);
-			}
-
-			if (typeof props.disabled === "boolean") {
-				newState.disabled = props.disabled;
-			}
-
-			if (typeof props.value === "string" && value !== props.value) {
-				value = props.value;
-			}
-
-			if (props.hasOwnProperty("name")) {
-				name = typeof props.name === 'string' ? props.name : '';
-			}
-
-			if (value !== state.value || name !== state.name) {
-				newState.name = name;
-				newState.value = value;
-				if (emit) {
-					if (emit.has(name)) {
-						newState.checked = value === emit.get(name);
-					} else {
-						emit.set(name, value, false);
-						newState.checked = true;
-					}
-				}
-			}
-
-			Object.keys(newState).length > 0 && this.setState(newState);
+			(0, _tools.componentReloadProps)(this, props, {}, {}, init);
 		}
 	}, {
 		key: "componentWillUnmount",

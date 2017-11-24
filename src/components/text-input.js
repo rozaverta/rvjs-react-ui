@@ -36,10 +36,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // @import els
-// @import view-util
-// @import view/svg-icon
-
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 // @import tools/input-controllers/password
 // @import tools/input-controllers/geo-point
 // @import tools/input-controllers/color
@@ -78,6 +75,36 @@ function getController(controller) {
 	return _textController2.default.create(name, props);
 }
 
+function init(state) {
+	if (typeof state.name !== "string") {
+		state.name = '';
+	} else if (state.name && state.emitter && state.emitter.has(state.name)) {
+		state.value = state.emitter.get(state.name);
+	}
+
+	if (typeof state.value !== "string") {
+		state.value = state.hasOwnProperty('value') ? _rvjsTools2.default.toString(state.value) : '';
+	}
+
+	if (state.controller) {
+		state.controller = getController(state.controller);
+	}
+
+	var valid = true,
+	    error = void 0;
+	if (state.value.length) {
+		valid = state.controller ? state.controller.valid(state.value, function (text) {
+			error = _rvjsTools2.default.toString(text);
+		}) : true;
+	} else if (state.required) {
+		valid = false;
+	}
+
+	state.valid = valid;
+	state.alertMessage = error;
+	return state;
+}
+
 var TextInput = function (_React$Component) {
 	_inherits(TextInput, _React$Component);
 
@@ -87,55 +114,19 @@ var TextInput = function (_React$Component) {
 		var _this = _possibleConstructorReturn(this, (TextInput.__proto__ || Object.getPrototypeOf(TextInput)).call(this, props));
 
 		var self = _this,
-		    state = Object.assign({}, props),
-		    emit = false,
-		    controller = false;
+		    state = Object.assign({}, props);
 
 		self.setValue = self.setValue.bind(self);
 		self.onChange = self.onChange.bind(self);
 		self.onControllerClick = self.onControllerClick.bind(self);
 		self.emitUpdate = self.emitUpdate.bind(self);
 
-		if (typeof state.name !== "string") {
-			state.name = '';
-		}
-
 		if (state.emitter) {
-			emit = _rvjsEmitter2.default.create(state.emitter);
-			emit.on(self.emitUpdate);
-			if (state.name && emit.has(state.name)) {
-				state.value = emit.get(state.name);
-			}
+			state.emitter = _rvjsEmitter2.default.create(state.emitter);
+			state.emitter.on(self.emitUpdate);
 		}
 
-		if (typeof state.value !== "string") {
-			state.value = state.hasOwnProperty('value') ? _rvjsTools2.default.toString(state.value) : '';
-		}
-
-		if (state.controller) {
-			controller = getController(state.controller);
-			if (controller) {
-				state.originalController = state.controller;
-			}
-		}
-
-		var valid = true,
-		    error = void 0;
-
-		if (state.value.length) {
-			valid = controller ? controller.valid(state.value, function (text) {
-				error = _rvjsTools2.default.toString(text);
-			}) : true;
-		} else if (state.required) {
-			valid = false;
-		}
-
-		state.valid = valid;
-		state.alertMessage = error;
-		state.emitter = emit;
-		state.controller = controller;
-
-		self.state = state;
+		self.state = init(state);
 		return _this;
 	}
 
@@ -152,69 +143,7 @@ var TextInput = function (_React$Component) {
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(props) {
-			var self = this,
-			    state = self.state,
-			    value = state.value,
-			    name = state.name,
-			    emit = state.emitter,
-			    controller = state.controller,
-			    newState = (0, _tools.assignNot)({}, props, ['name', 'emitter', 'value', 'controller', 'valid', 'alertMessage']),
-			    set = props.hasOwnProperty('value');
-
-			if (!emit && props.emitter) {
-				emit = newState.emitter = _rvjsEmitter2.default.create(props.emitter);
-			}
-
-			if (props.controller && props.controller !== state.originalController) {
-				controller = getController(props.controller);
-				newState.originalController = controller ? props.controller : false;
-				newState.controller = controller;
-			}
-
-			if (set) {
-				value = props.value;
-				if (controller) {
-					value = controller.filter(value);
-				}
-				value = _rvjsTools2.default.toString(value);
-			}
-
-			if (typeof props.name === 'string' && name !== props.name) {
-				name = newState.name = props.name;
-				if (name && emit) {
-					if (set) {
-						emit.set(name, value, false);
-					} else if (emit.has(name)) {
-						set = true;
-						value = emit.get(name);
-						if (controller) {
-							value = controller.filter(value);
-						}
-						value = _rvjsTools2.default.toString(value);
-					}
-				}
-			}
-
-			if (set && value !== state.value) {
-				var valid = true,
-				    error = void 0;
-
-				if (value.length) {
-					valid = controller ? controller.valid(value, function (text) {
-						error = _rvjsTools2.default.toString(text);
-					}) : true;
-				} else if (state.required) {
-					valid = false;
-				}
-
-				newState.value = value;
-				newState.valid = valid;
-				newState.alertMessage = error;
-			} else {
-				set = Object.keys(newState).length > 0;
-			}
-
-			set && this.setState(newState);
+			(0, _tools.componentReloadProps)(this, props, {}, {}, init);
 		}
 	}, {
 		key: "componentWillUnmount",

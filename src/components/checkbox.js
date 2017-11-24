@@ -28,6 +28,24 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function init(state) {
+	if (typeof state.name !== "string") {
+		state.name = '';
+	} else if (state.name && state.emitter && state.emitter.has(state.name)) {
+		state.checked = state.emitter.get(state.name) === true;
+	}
+
+	if (typeof state.disabled !== "boolean") {
+		state.disabled = false;
+	}
+
+	if (typeof state.checked !== "boolean") {
+		state.checked = false;
+	}
+
+	return state;
+}
+
 var Checkbox = function (_React$Component) {
 	_inherits(Checkbox, _React$Component);
 
@@ -37,37 +55,15 @@ var Checkbox = function (_React$Component) {
 		var _this = _possibleConstructorReturn(this, (Checkbox.__proto__ || Object.getPrototypeOf(Checkbox)).call(this, props));
 
 		var self = _this,
-		    state = Object.assign({}, props),
-		    emit = false,
-		    checked = false,
-		    name = null;
+		    state = Object.assign({}, props);
 		self.onChange = self.onChange.bind(self);
 
-		if (typeof state.disabled !== "boolean") {
-			state.disabled = false;
-		}
-
-		if (typeof state.checked === "boolean") {
-			checked = state.checked;
-		}
-
-		if (typeof state.name === 'string' && state.name.length) {
-			name = state.name;
-		}
-
 		if (state.emitter) {
-			emit = _rvjsEmitter2.default.create(state.emitter);
-			emit.on(self.emitUpdate);
-			if (state.name && emit.has(state.name)) {
-				checked = emit.get(state.name) === true;
-			}
+			state.emitter = _rvjsEmitter2.default.create(state.emitter);
+			state.emitter.on(self.emitUpdate);
 		}
 
-		state.checked = checked;
-		state.emitter = emit;
-		state.name = name;
-
-		self.state = state;
+		self.state = init(state);
 		return _this;
 	}
 
@@ -84,44 +80,7 @@ var Checkbox = function (_React$Component) {
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(props) {
-			var self = this,
-			    state = self.state,
-			    checked = state.checked,
-			    name = state.name,
-			    emit = state.emitter,
-			    newState = assignNot({}, props, ['name', 'emitter', 'checked', 'disabled', 'value']),
-			    set = typeof props.checked === "boolean" && props.checked !== checked;
-
-			if (!emit && props.emitter) {
-				emit = newState.emitter = _rvjsEmitter2.default.create(props.emitter);
-			}
-
-			if (typeof props.disabled === "boolean") {
-				newState.disabled = props.disabled;
-			}
-
-			if (typeof props.name === 'string') {
-				var rename = props.name.length ? props.name : null;
-				if (rename !== name) {
-					name = newState.name = rename;
-					if (name && emit) {
-						if (set) {
-							emit.set(name, checked, false);
-						} else if (emit.has(name)) {
-							checked = emit.get(name) === true;
-							set = state.checked !== checked;
-						}
-					}
-				}
-			}
-
-			if (set) {
-				newState.checked = checked;
-			} else {
-				set = Object.keys(newState).length > 0;
-			}
-
-			set && this.setState(newState);
+			(0, _tools.componentReloadProps)(this, props, {}, {}, init);
 		}
 	}, {
 		key: "componentWillUnmount",

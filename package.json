@@ -1,6 +1,6 @@
 {
 	"name": "rvjs-react-ui",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "React javascript ui package for rvjs-* library",
 	"main": "src/index.js",
 	"scripts": {
