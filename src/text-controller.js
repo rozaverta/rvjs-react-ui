@@ -53,7 +53,7 @@ var TextController = function () {
 			if (TextController.has(name)) {
 				throw new Error("Controller '" + name + "' is exist");
 			}
-			if (controller instanceof TextController) {
+			if (TextController.isPrototypeOf(controller)) {
 				Controllers[name] = controller;
 			} else {
 				throw new Error("Controller '" + name + "' must be implemented from the TextController class");
